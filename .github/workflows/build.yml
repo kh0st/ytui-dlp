@@ -1,0 +1,33 @@
+name: Build Standalone Binaries
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyinstaller questionary
+      - name: Build executable
+        run: |
+          pyinstaller --onefile ytui.py
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ytui-${{ matrix.os }}
+          path: dist/*
